@@ -1,0 +1,604 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900&family=DM+Sans:wght@300;400;500;600&display=swap');
+  :root {
+    --bg:#0f0e0c; --card:#211f1b; --border:#2e2b25;
+    --accent:#e8a838; --accent2:#d4621a;
+    --text:#f0ebe0; --muted:#8a8070; --tag-bg:#2a2720;
+    --green:#4caf7d; --red:#e05252; --blue:#5b9bd5;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;font-size:14px;line-height:1.6;}
+
+  /* NAV */
+  .nav{position:sticky;top:0;z-index:100;background:rgba(15,14,12,0.96);backdrop-filter:blur(10px);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:10px 20px;gap:12px;flex-wrap:wrap;}
+  .nav-logo{font-family:'Playfair Display',serif;font-size:17px;font-weight:700;color:var(--accent);white-space:nowrap;}
+  .nav-tabs{display:flex;gap:4px;flex-wrap:wrap;}
+  .nav-tab{padding:5px 12px;border-radius:20px;font-size:12px;font-weight:500;cursor:pointer;border:1px solid transparent;color:var(--muted);background:none;transition:all .2s;font-family:'DM Sans',sans-serif;}
+  .nav-tab:hover{color:var(--text);border-color:var(--border);}
+  .nav-tab.active{background:var(--accent);color:#000;border-color:var(--accent);font-weight:700;}
+
+  /* HERO */
+  .hero{background:linear-gradient(135deg,#1a0a00,#0f0e0c 50%,#0a1020);padding:52px 24px 40px;text-align:center;position:relative;overflow:hidden;}
+  .hero::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 50% 0%,rgba(232,168,56,.13) 0%,transparent 60%);}
+  .hero-flag{font-size:44px;margin-bottom:10px;}
+  .hero-title{font-family:'Playfair Display',serif;font-size:clamp(30px,6vw,54px);font-weight:900;line-height:1.1;margin-bottom:6px;}
+  .hero-title span{color:var(--accent);}
+  .hero-sub{color:var(--muted);font-size:13px;margin-bottom:20px;letter-spacing:2px;text-transform:uppercase;}
+  .hero-badges{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;}
+  .badge{background:var(--tag-bg);border:1px solid var(--border);border-radius:20px;padding:5px 14px;font-size:12px;color:var(--muted);}
+  .badge strong{color:var(--accent);}
+  .badge.warn strong{color:var(--green);}
+
+  /* SECTIONS */
+  .section{display:none;padding:0 0 60px;}
+  .section.active{display:block;}
+  .si{max-width:860px;margin:0 auto;padding:0 20px;}
+
+  /* DAY TABS */
+  .day-tabs{display:flex;gap:8px;padding:20px 20px 0;max-width:860px;margin:0 auto;}
+  .day-tab{flex:1;padding:12px 6px;text-align:center;background:var(--card);border:1px solid var(--border);border-radius:12px;cursor:pointer;transition:all .2s;font-size:11px;color:var(--muted);font-family:'DM Sans',sans-serif;}
+  .day-tab:hover{border-color:var(--accent);color:var(--text);}
+  .day-tab.active{background:var(--accent);border-color:var(--accent);color:#000;font-weight:700;}
+  .day-tab .dn{font-family:'Playfair Display',serif;font-size:20px;font-weight:900;display:block;line-height:1.1;}
+  .day-tab.active .dn{color:#000;}
+  .day-content{display:none;} .day-content.active{display:block;}
+
+  /* SECTION TITLE */
+  .stitle{font-family:'Playfair Display',serif;font-size:20px;font-weight:700;padding:24px 20px 4px;max-width:860px;margin:0 auto;display:flex;align-items:center;gap:10px;}
+  .stitle::after{content:'';flex:1;height:1px;background:var(--border);}
+
+  /* TIMELINE */
+  .timeline{position:relative;padding:8px 0;}
+  .timeline::before{content:'';position:absolute;left:28px;top:0;bottom:0;width:1px;background:var(--border);}
+  .tli{display:flex;gap:14px;margin-bottom:4px;}
+  .tld{width:56px;min-width:56px;display:flex;flex-direction:column;align-items:center;padding-top:14px;position:relative;z-index:1;}
+  .tlc{width:13px;height:13px;border-radius:50%;background:var(--accent);border:2px solid var(--bg);flex-shrink:0;}
+  .tlc.g{background:var(--green);} .tlc.o{background:var(--accent2);} .tlc.b{background:var(--blue);}
+  .tlt{font-size:10px;color:var(--muted);margin-top:3px;font-weight:500;letter-spacing:.5px;}
+  .tlcard{flex:1;background:var(--card);border:1px solid var(--border);border-radius:14px;padding:14px 16px;margin-bottom:8px;transition:border-color .2s;}
+  .tlcard:hover{border-color:var(--accent);}
+  .tlct{font-family:'Playfair Display',serif;font-size:15px;font-weight:700;line-height:1.3;margin-bottom:6px;}
+  .tags{display:flex;gap:4px;flex-wrap:wrap;margin-bottom:8px;}
+  .tag{background:var(--tag-bg);border:1px solid var(--border);border-radius:10px;padding:2px 8px;font-size:10px;color:var(--muted);}
+  .tag.p{color:var(--accent);border-color:rgba(232,168,56,.3);}
+  .tag.f{color:var(--green);border-color:rgba(76,175,125,.3);}
+  .tag.t{color:var(--blue);border-color:rgba(91,155,213,.3);}
+  .tag.w{color:var(--red);border-color:rgba(224,82,82,.3);}
+  .tldesc{font-size:12px;color:var(--muted);line-height:1.6;}
+  .tipbox{background:rgba(232,168,56,.06);border-left:2px solid var(--accent);border-radius:0 8px 8px 0;padding:8px 12px;font-size:12px;color:var(--text);margin-top:8px;}
+  .tiplabel{font-size:10px;font-weight:600;color:var(--accent);text-transform:uppercase;letter-spacing:1px;margin-bottom:2px;}
+
+  /* BOXES */
+  .bluebox{background:linear-gradient(135deg,rgba(91,155,213,.08),transparent);border:1px solid rgba(91,155,213,.25);border-radius:14px;padding:18px;margin-bottom:12px;}
+  .bluebox h3{font-family:'Playfair Display',serif;font-size:17px;font-weight:700;color:var(--blue);margin-bottom:12px;display:flex;align-items:center;gap:8px;}
+  .greenbox{background:linear-gradient(135deg,rgba(76,175,125,.07),transparent);border:1px solid rgba(76,175,125,.25);border-radius:14px;padding:18px;margin-bottom:12px;}
+  .greenbox h3{font-family:'Playfair Display',serif;font-size:17px;font-weight:700;color:var(--green);margin-bottom:12px;}
+  .step{display:flex;gap:10px;align-items:flex-start;margin-bottom:10px;}
+  .stepn{width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0;margin-top:1px;}
+  .stepn.b{background:var(--blue);color:#000;} .stepn.g{background:var(--green);color:#000;}
+  .stept{font-size:13px;line-height:1.5;} .stept strong{color:var(--text);}
+
+  /* GRIDS */
+  .grid2{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:12px;}
+  .grid3{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px;}
+  .gcard{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:16px;transition:border-color .2s;}
+  .gcard:hover{border-color:var(--accent);}
+  .gcard-icon{font-size:26px;margin-bottom:8px;}
+  .gcard-title{font-family:'Playfair Display',serif;font-size:14px;font-weight:700;margin-bottom:4px;}
+  .gcard-sub{font-size:11px;color:var(--accent2);margin-bottom:6px;font-weight:500;}
+  .gcard-desc{font-size:12px;color:var(--muted);line-height:1.5;}
+  .gcard-price{font-size:11px;color:var(--accent);margin-top:8px;font-weight:600;}
+
+  /* MISTAKE */
+  .mcard{background:var(--card);border:1px solid rgba(224,82,82,.3);border-radius:14px;padding:16px;margin-bottom:10px;display:flex;gap:12px;align-items:flex-start;}
+  .mnum{background:var(--red);color:#fff;width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:12px;flex-shrink:0;}
+  .mtitle{font-weight:600;font-size:13px;margin-bottom:3px;color:var(--red);}
+  .mdesc{font-size:12px;color:var(--muted);line-height:1.5;}
+  .mfix{font-size:12px;color:var(--green);margin-top:5px;}
+
+  /* MONTSERRAT HERO */
+  .monthero{background:linear-gradient(135deg,#0a1a0a,#151510);border:1px solid var(--border);border-radius:16px;padding:22px;margin-bottom:16px;text-align:center;}
+  .monttitle{font-family:'Playfair Display',serif;font-size:26px;font-weight:900;color:var(--accent);margin-bottom:4px;}
+  .montstats{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-top:14px;}
+  .mstat{background:var(--tag-bg);border:1px solid var(--border);border-radius:10px;padding:10px 14px;text-align:center;}
+  .mstatv{font-weight:700;font-size:15px;color:var(--accent);}
+  .mstatl{font-size:10px;color:var(--muted);}
+
+  /* BUDGET */
+  .btable{width:100%;border-collapse:collapse;}
+  .btable th{text-align:left;padding:8px 12px;font-size:10px;text-transform:uppercase;letter-spacing:1px;color:var(--muted);border-bottom:1px solid var(--border);}
+  .btable td{padding:9px 12px;font-size:13px;border-bottom:1px solid var(--border);}
+  .btable tr:last-child td{border-bottom:none;}
+  .btable .sm{color:var(--muted);font-size:11px;}
+  .btable .tot td{font-weight:700;color:var(--accent);border-top:2px solid var(--border);}
+
+  /* INFO CARDS */
+  .infogrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:10px;margin-bottom:18px;}
+  .icard{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:14px;text-align:center;}
+  .icardv{font-family:'Playfair Display',serif;font-size:24px;font-weight:900;color:var(--accent);}
+  .icardl{font-size:11px;color:var(--muted);margin-top:2px;}
+
+  /* CHECKLIST */
+  .checklist{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:16px;}
+  .chitem{display:flex;gap:8px;font-size:13px;padding:6px 0;border-bottom:1px solid var(--border);align-items:flex-start;}
+  .chitem:last-child{border-bottom:none;}
+  .chitem span:first-child{font-size:14px;margin-top:1px;}
+
+  /* ALERT */
+  .alert{background:rgba(232,168,56,.08);border:1px solid rgba(232,168,56,.25);border-radius:12px;padding:14px 16px;margin-bottom:14px;font-size:13px;}
+  .alert strong{color:var(--accent);}
+
+  .divider{height:1px;background:var(--border);margin:18px 0;}
+  ::-webkit-scrollbar{width:4px;}
+  ::-webkit-scrollbar-track{background:var(--bg);}
+  ::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px;}
+</style>
+</head>
+<body>
+
+<div class="nav">
+  <div class="nav-logo">BCN Guide '26</div>
+  <div class="nav-tabs">
+    <button class="nav-tab active" onclick="showSec('itinerariu',this)">Itinerariu</button>
+    <button class="nav-tab" onclick="showSec('mancare',this)">Mâncare</button>
+    <button class="nav-tab" onclick="showSec('montserrat',this)">Montserrat</button>
+    <button class="nav-tab" onclick="showSec('transport',this)">Transport</button>
+    <button class="nav-tab" onclick="showSec('buget',this)">Buget</button>
+    <button class="nav-tab" onclick="showSec('tips',this)">Tips</button>
+  </div>
+</div>
+
+<div class="hero">
+  <div class="hero-flag">🇪🇸</div>
+  <div class="hero-title">Barcelona<br><span>City Break</span></div>
+  <div class="hero-sub">21–24 Martie 2026 · 4 persoane · 2 cupluri</div>
+  <div class="hero-badges">
+    <div class="badge">✈️ Sosire <strong>21 mart. noaptea</strong></div>
+    <div class="badge warn">🏔️ Montserrat <strong>22 mart. zi liberă</strong></div>
+    <div class="badge">🌿 Park Güell <strong>23 mart. 9:30</strong></div>
+    <div class="badge">⛪ Sagrada Família <strong>23 mart. 16:00</strong></div>
+    <div class="badge">⚽ Camp Nou <strong>23 mart. ~18:00</strong></div>
+    <div class="badge">✈️ Zbor retur <strong>24 mart. 18:00</strong></div>
+  </div>
+</div>
+
+<!-- ===== ITINERARIU ===== -->
+<div id="sec-itinerariu" class="section active">
+  <div class="day-tabs">
+    <div class="day-tab active" onclick="showDay(1,this)"><span class="dn">21</span>Sâmbătă<br><small>Sosire</small></div>
+    <div class="day-tab" onclick="showDay(2,this)"><span class="dn">22</span>Duminică<br><small>Montserrat</small></div>
+    <div class="day-tab" onclick="showDay(3,this)"><span class="dn">23</span>Luni<br><small>Gaudí + Camp Nou</small></div>
+    <div class="day-tab" onclick="showDay(4,this)"><span class="dn">24</span>Marți<br><small>BCN + Zbor</small></div>
+  </div>
+
+  <!-- DAY 21 -->
+  <div id="day-1" class="day-content active">
+    <div class="si">
+      <div class="stitle" style="padding-top:20px;">✈️ Sosire — 21 Martie (noaptea)</div>
+
+      <div class="alert">
+        <strong>Aterizați la T2 (zbor low-cost din București)?</strong> Luați trenul RENFE R2 Nord — costă doar ~1.20€ (inclus în T-Casual!) și ajungeți la Passeig de Gràcia în 25 min. Dacă aterizați la T1, luați L9 Sud (~5.50€) sau Aerobus (~7.45€).
+      </div>
+
+      <div class="bluebox">
+        <h3>🛬 Aeroport El Prat → Cazare (lângă Sagrada Família)</h3>
+        <div class="step"><div class="stepn b">1</div><div class="stept"><strong>Verificați terminalul:</strong> Zborul din București aterizează de obicei la <strong>T2</strong> (low-cost). Shuttle gratuit între T1↔T2 dacă e nevoie.</div></div>
+        <div class="step"><div class="stepn b">2</div><div class="stept"><strong>Opțiunea 1 — RENFE R2 Nord (recomandat!):</strong> De la T2, urmăriți indicatorul RENFE. Tren la fiecare 30 min, 25 min până la Passeig de Gràcia sau Barcelona Sants. Cost: <strong>~1.20€ cu T-Casual!</strong></div></div>
+        <div class="step"><div class="stepn b">3</div><div class="stept"><strong>Opțiunea 2 — Metro L9 Sud:</strong> De la T1 sau T2, ~35 min, schimb o dată. Cost: <strong>5.50€/pers</strong> (bilet special aeroport, NU merge cu T-Casual).</div></div>
+        <div class="step"><div class="stepn b">4</div><div class="stept"><strong>Opțiunea 3 — Aerobus:</strong> La fiecare 10 min spre Plaça Catalunya, 35 min. Cost: <strong>7.45€/pers.</strong> Cel mai comod cu bagaje mari.</div></div>
+        <div class="step"><div class="stepn b">5</div><div class="stept">La aeroport cumpărați imediat câte un <strong>T-Casual</strong> (10 călătorii, ~12€/card) de la automatele din metrou sau RENFE.</div></div>
+      </div>
+
+      <div class="stitle">🌙 Seara</div>
+      <div class="timeline">
+        <div class="tli">
+          <div class="tld"><div class="tlc b"></div><div class="tlt">~23:30</div></div>
+          <div class="tlcard">
+            <div class="tlct">Check-in + prima vedere nocturnă</div>
+            <div class="tags"><span class="tag f">Gratuit</span><span class="tag t">20 min</span></div>
+            <div class="tldesc">Lăsați bagajele. Sagrada Família e iluminată noaptea — faceți o tură de 10 min pe jos. Prima vedere e wow! Supermarket non-stop (Caprabo/Lidl) dacă vă e foame. Mâine plecați devreme spre Montserrat!</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- DAY 22 — MONTSERRAT -->
+  <div id="day-2" class="day-content">
+    <div class="si">
+      <div class="stitle" style="padding-top:20px;">🏔️ Ziua întreagă — Montserrat</div>
+
+      <div class="alert"><strong>Luni e mult mai liniștit pe munte!</strong> Ah, 22 e duminică — totuși dimineața devreme e ok. Plecați cu primul tren posibil pentru a evita aglomerația de weekend.</div>
+
+      <div class="timeline">
+        <div class="tli">
+          <div class="tld"><div class="tlc b"></div><div class="tlt">7:45</div></div>
+          <div class="tlcard">
+            <div class="tlct">Plecare spre Plaça Espanya</div>
+            <div class="tags"><span class="tag t">Metro L1/L3 → Espanya</span><span class="tag t">~20 min</span></div>
+            <div class="tldesc">Luați metro devreme. De la Plaça Espanya pleacă trenul FGC spre Montserrat.</div>
+          </div>
+        </div>
+        <div class="tli">
+          <div class="tld"><div class="tlc b"></div><div class="tlt">8:36</div></div>
+          <div class="tlcard">
+            <div class="tlct">Tren FGC R5 → Montserrat</div>
+            <div class="tags"><span class="tag p">~13€/pers dus-întors</span><span class="tag t">~1h</span><span class="tag w">NU merge cu T-Casual</span></div>
+            <div class="tldesc">Trenul FGC Linie R5 din Plaça Espanya. Cumpărați bilete la automate sau pe <strong>fgc.cat</strong>. <br><br><strong>Varianta A (recomandată):</strong> Coborâți la Monistrol de Montserrat → Rack Railway (cremaleră) 15 min → direct la mănăstire. Spectaculos!<br><strong>Varianta B:</strong> Coborâți la Aeri de Montserrat → Telecabină (gondolă) 5 min → mănăstire. Vederi mai bune din aer.</div>
+            <div class="tipbox"><div class="tiplabel">💡 Pachet combinat</div>Există bilet combinat tren + cremaleră + funicular Sant Joan (~35€) — mai avantajos dacă faceți totul.</div>
+          </div>
+        </div>
+        <div class="tli">
+          <div class="tld"><div class="tlc g"></div><div class="tlt">10:00</div></div>
+          <div class="tlcard">
+            <div class="tlct">Mănăstirea Santa Maria — intrare gratuită</div>
+            <div class="tags"><span class="tag f">Gratuit</span><span class="tag t">45 min</span></div>
+            <div class="tldesc">Mănăstire benedictină activă din sec. IX. <strong>La Moreneta</strong> — Fecioara Neagră, una din cele mai venerate din Spania (coadă ~30 min). Bazilica impresionantă. <strong>Corul de copii Escolania</strong> cântă la 13:00 — nu ratați dacă sunteți acolo!</div>
+          </div>
+        </div>
+        <div class="tli">
+          <div class="tld"><div class="tlc"></div><div class="tlt">11:00</div></div>
+          <div class="tlcard">
+            <div class="tlct">⭐ Funicular Sant Joan → Vârful muntelui</div>
+            <div class="tags"><span class="tag p">~13€ opțional</span><span class="tag t">2h total</span></div>
+            <div class="tldesc">Funicularul urcă la 1.100m. De acolo: <strong>Sant Joan Chapel</strong> (20 min mers) și <strong>Sant Jeroni Peak</strong> (1.236m, 1h hiking dus-întors) — vederi absolute spre Pirinei și Mediterana. Pe vreme bună e ireal.</div>
+            <div class="tipbox"><div class="tiplabel">🥾 Important</div>Luați apă + ceva de mâncat. Temperatura e cu 5–7°C mai mică decât Barcelona. Încălțăminte comodă obligatorie.</div>
+          </div>
+        </div>
+        <div class="tli">
+          <div class="tld"><div class="tlc o"></div><div class="tlt">13:30</div></div>
+          <div class="tlcard">
+            <div class="tlct">Prânz pe munte</div>
+            <div class="tags"><span class="tag p">~12–18€/pers</span></div>
+            <div class="tldesc">Cafeteria mănăstirii e decenta ca preț. <strong>Sfat de econom:</strong> Luați sendvișuri din Barcelona dimineața și mâncați cu vederea spre vale — economisiți 8–10€/pers.</div>
+          </div>
+        </div>
+        <div class="tli">
+          <div class="tld"><div class="tlc g"></div><div class="tlt">14:30</div></div>
+          <div class="tlcard">
+            <div class="tlct">Calea Crucii + Plimbare liberă</div>
+            <div class="tags"><span class="tag f">Gratuit</span><span class="tag t">1h</span></div>
+            <div class="tldesc">Drum cu 14 stații sculptate în stâncă. Chiar dacă nu aveți motivație religioasă, sculpturile și priveliștile sunt remarcabile. Timp liber de explorat zona la propriul ritm.</div>
+          </div>
+        </div>
+        <div class="tli">
+          <div class="tld"><div class="tlc b"></div><div class="tlt">16:30</div></div>
+          <div class="tlcard">
+            <div class="tlct">Tren înapoi spre Barcelona</div>
+            <div class="tags"><span class="tag t">~1h spre Plaça Espanya</span></div>
+            <div class="tldesc">Reveniți în Barcelona pe la 17:30–18:00. Seara liberă!</div>
+          </div>
+        </div>
+        <div class="tli">
+          <div class="tld"><div class="tlc o"></div><div class="tlt">19:30</div></div>
+          <div class="tlcard">
+            <div class="tlct">Cină în El Born sau Gràcia</div>
+            <div class="tags"><span class="tag p">15–20€/pers</span><span class="tag t">Metro L4 → Jaume I</span></div>
+            <div class="tldesc">Tapas, patatas bravas, pan con tomate. Odihniți-vă bine — mâine e ziua cea mai plină!</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- DAY 23 -->
+  <div id="day-3" class="day-content">
+    <div class="si">
+      <div class="stitle" style="padding-top:20px;">🌅 Dimineață — 23 Martie</div>
+      <div class="timeline">
+        <div class="tli">
+          <div class="tld"><div class="tlc"></div><div class="tlt">8:00</div></div>
+          <div class="tlcard">
+            <div class="tlct">Plecare spre Park Güell</div>
+            <div class="tags"><span class="tag t">Metro L3 → Lesseps + 15 min mers în deal</span></div>
+            <div class="tldesc">Plecați la 8:00 pentru a fi acolo la 8:45. Slot rezervat: <strong>9:30</strong>.</div>
+          </div>
+        </div>
+        <div class="tli">
+          <div class="tld"><div class="tlc"></div><div class="tlt">9:30</div></div>
+          <div class="tlcard">
+            <div class="tlct">⭐ Park Güell — REZERVAT 9:30</div>
+            <div class="tags"><span class="tag p">~13€/pers</span><span class="tag t">1.5–2h</span><span class="tag w">BILETE REZERVATE!</span></div>
+            <div class="tldesc">Zona monumentală cu terasele mozaicate, coloanele și vederea spre Barcelona. Dimineața devreme — lumina perfectă și mai puțini turiști. Restul parcului (în afara zonei plătite) este <strong>complet gratuit</strong> — explorați și viaductele și aleile colonate.</div>
+            <div class="tipbox"><div class="tiplabel">📸 Photo tip</div>Terasa principală cu bancul mozaicat — faceți-vă pozele înainte de 10:30 când se umple. Vederea spre Sagrada Família din parc e iconică.</div>
+          </div>
+        </div>
+        <div class="tli">
+          <div class="tld"><div class="tlc g"></div><div class="tlt">11:30</div></div>
+          <div class="tlcard">
+            <div class="tlct">Cartierul Gràcia — Coborâre pe jos</div>
+            <div class="tags"><span class="tag f">Gratuit</span><span class="tag t">1h</span></div>
+            <div class="tldesc">Coborâți pe jos prin <strong>Gràcia</strong> — cel mai hipster cartier, plin de cafenele indie, magazine vintage și piațete cu fântâni. <strong>Plaça del Sol</strong> și <strong>Plaça de la Vila de Gràcia</strong> — atmosferă autentică, departe de zona turistică.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="stitle">🌞 Prânz — 23 Martie</div>
+      <div class="timeline">
+        <div class="tli">
+          <div class="tld"><div class="tlc o"></div><div class="tlt">13:00</div></div>
+          <div class="tlcard">
+            <div class="tlct">Prânz Menú del Día în Gràcia</div>
+            <div class="tags"><span class="tag p">10–13€/pers</span><span class="tag t">1h</span></div>
+            <div class="tldesc">Cel mai ieftin și autentic prânz posibil. 3 feluri + pâine + băutură. Căutați localnici înăuntru și meniu pe tablă — semne bune.</div>
+          </div>
+        </div>
+        <div class="tli">
+          <div class="tld"><div class="tlc"></div><div class="tlt">14:30</div></div>
+          <div class="tlcard">
+            <div class="tlct">Passeig de Gràcia — Blocul Discord</div>
+            <div class="tags"><span class="tag f">Exterior Gratuit</span><span class="tag t">45 min</span><span class="tag">Metro L3/L5 → Diagonal</span></div>
+            <div class="tldesc"><strong>Casa Batlló</strong> și <strong>La Pedrera</strong> una lângă alta pe același bulevard. Exterioarele sunt spectaculoase și complet gratuite. Intrarea în La Pedrera (~25€) e opțională — acoperișul cu soldații de piatră merită dacă aveți buget.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="stitle">🕔 Dupăamiază — 23 Martie</div>
+      <div class="timeline">
+        <div class="tli">
+          <div class="tld"><div class="tlc"></div><div class="tlt">16:00</div></div>
+          <div class="tlcard">
+            <div class="tlct">⭐ SAGRADA FAMÍLIA — REZERVAT 16:00</div>
+            <div class="tags"><span class="tag p">~26€/pers</span><span class="tag t">1.5h</span><span class="tag w">BILETE REZERVATE!</span></div>
+            <div class="tldesc">7 minute pe jos de la cazare. Slotul de 16:00 e <strong>cel mai bun din zi</strong> — lumina de apus intră prin vitraliile din vest și creează un spectacol de culori în interior de nedescris. Nu vă grăbiți — fiecare detaliu contează.</div>
+            <div class="tipbox"><div class="tiplabel">📸 Lumina perfectă</div>16:00–17:30 e momentul magic. Vitraliile portocaliu-roșii din vest explodează în culori. Cel mai bun slot posibil.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="stitle">🌆 Seara — 23 Martie</div>
+      <div class="timeline">
+        <div class="tli">
+          <div class="tld"><div class="tlc g"></div><div class="tlt">18:00</div></div>
+          <div class="tlcard">
+            <div class="tlct">⚽ Camp Nou — Turul Spotify Camp Nou</div>
+            <div class="tags"><span class="tag p">~26€/pers tur</span><span class="tag t">1.5h</span><span class="tag">Metro L3 → Palau Reial</span></div>
+            <div class="tldesc">Cel mai mare stadion din Europa (99.000 locuri). Turul include: museul FC Barcelona, vestiare, teren, tribuna de presă, tunelul jucătorilor. Rezervați pe <strong>fcbarcelona.com</strong> în avans.</div>
+            <div class="tipbox"><div class="tiplabel">⚽ Dacă e meci!</div>Verificați pe fcbarcelona.com dacă Barça joacă pe 23 martie. Un meci live e o experiență de neuitat și merită orice preț. Biletele se iau cu luni în avans!</div>
+          </div>
+        </div>
+        <div class="tli">
+          <div class="tld"><div class="tlc o"></div><div class="tlt">20:30</div></div>
+          <div class="tlcard">
+            <div class="tlct">Cină în Eixample sau Born</div>
+            <div class="tags"><span class="tag p">15–20€/pers</span></div>
+            <div class="tldesc">Tapas, pintxos, croquetas. Localnicii cinez la 21:00–22:00 — restaurantele se animă târziu. <strong>Cervecería Catalana</strong> sau <strong>Bar del Pla</strong> sunt opțiuni excelente.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- DAY 24 -->
+  <div id="day-4" class="day-content">
+    <div class="si">
+      <div class="stitle" style="padding-top:20px;">🌅 Dimineață — 24 Martie</div>
+
+      <div class="alert"><strong>Zbor la 18:00 → trebuie la aeroport la 16:00.</strong> Plecați din cazare la 15:15 cu Metro L9 Sud (~5.50€) sau RENFE (~1.20€ dacă mergeți la T2 via Sants). Aveți toată dimineața și prima parte a dupăamiezii!</div>
+
+      <div class="timeline">
+        <div class="tli">
+          <div class="tld"><div class="tlc"></div><div class="tlt">8:00</div></div>
+          <div class="tlcard">
+            <div class="tlct">⭐ Bunkers del Carmel — Cel mai bun viewpoint</div>
+            <div class="tags"><span class="tag f">100% Gratuit</span><span class="tag t">1.5h</span><span class="tag">Bus 24 sau V17</span></div>
+            <div class="tldesc">Fostele buncăre antiaeriene — azi cel mai iconic viewpoint secret din Barcelona. <strong>360° panoramă completă</strong>: Sagrada Família, Montjuïc, portul, marea, Pirinei. Rating 4.6⭐ din 17.000 recenzii. Dimineața devreme e magic — lumina, liniștea, vântul rece.</div>
+            <div class="tipbox"><div class="tiplabel">🔍 Secret local</div>Puțini turiști știu de el. Localnicii vin seara, voi mergeți dimineața — aveți vederile doar pentru voi.</div>
+          </div>
+        </div>
+        <div class="tli">
+          <div class="tld"><div class="tlc"></div><div class="tlt">10:00</div></div>
+          <div class="tlcard">
+            <div class="tlct">Montjuïc — Castel + MNAC + Grădini</div>
+            <div class="tags"><span class="tag f">Funicular inclus în T-Casual!</span><span class="tag p">Castel 12€</span><span class="tag t">2.5h</span><span class="tag">Metro L3 → Paral·lel + Funicular</span></div>
+            <div class="tldesc">Metro L3 → Paral·lel, apoi funicularul (inclus în T-Casual, o singură călătorie!). Sus:<br>• <strong>Castelul Montjuïc</strong> — 12€, vederi spre port și Mediterana<br>• <strong>Terasa MNAC</strong> — gratuită, vedere panoramică unică spre Avinguda Reina Maria Cristina<br>• <strong>Jardins de Laribal</strong> — grădini în terase, complet neaglomerate, gratuite</div>
+            <div class="tipbox"><div class="tiplabel">💡 Economie</div>Duminica după 15:00 și prima duminică a lunii intrarea la Castelul Montjuïc e GRATUITĂ. Voi sunteți marți — costă 12€. Merită totuși.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="stitle">🌞 Prânz Final — 24 Martie</div>
+      <div class="timeline">
+        <div class="tli">
+          <div class="tld"><div class="tlc o"></div><div class="tlt">13:00</div></div>
+          <div class="tlcard">
+            <div class="tlct">Mercat de Santa Caterina + Prânz final</div>
+            <div class="tags"><span class="tag p">10–15€/pers</span><span class="tag t">1h</span><span class="tag">Metro L4 → Jaume I</span></div>
+            <div class="tldesc">Piața cu acoperișul mozaicat colorat — mult mai locală decât Boqueria, prețuri normale, atmosferă autentică. Prânz final în Barcelona la restaurantele din jur sau la tarabele din interior.</div>
+          </div>
+        </div>
+        <div class="tli">
+          <div class="tld"><div class="tlc g"></div><div class="tlt">14:15</div></div>
+          <div class="tlcard">
+            <div class="tlct">Gothic Quarter — Ultima plimbare</div>
+            <div class="tags"><span class="tag f">Gratuit</span><span class="tag t">45 min</span></div>
+            <div class="tldesc">Dacă mai aveți energie — o ultimă tură prin Barri Gòtic. <strong>Plaça de Sant Felip Neri</strong> (hidden gem cu urme de gloanțe din Războiul Civil), <strong>Pont del Bisbe</strong>, atmosferă medievală. Totul pe jos, relaxat.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="stitle">✈️ Plecare — 24 Martie</div>
+      <div class="timeline">
+        <div class="tli">
+          <div class="tld"><div class="tlc b"></div><div class="tlt">15:15</div></div>
+          <div class="tlcard">
+            <div class="tlct">Înapoi la cazare → Bagaje → Aeroport</div>
+            <div class="tags"><span class="tag p">~5.50€/pers L9 Sud sau ~1.20€ RENFE</span><span class="tag t">~35–40 min</span></div>
+            <div class="tldesc">Luați bagajele de la cazare (sau lăsați-le la hotel de dimineață cu <em>luggage storage</em>). Metro L9 Sud direct la aeroport — sau RENFE din Sants dacă e mai aproape. Ajungeți la aeroport la <strong>16:00</strong> — suficient pentru check-in + securitate. La revedere, Barcelona! 🌊</div>
+            <div class="tipbox"><div class="tiplabel">⚠️ Important</div>Biletul L9 Sud pentru aeroport NU e inclus în T-Casual. Costă 5.50€/pers separat. RENFE din Sants e mai ieftin dacă treceți pe acolo.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== MÂNCARE ===== -->
+<div id="sec-mancare" class="section">
+  <div class="si">
+    <div class="stitle" style="padding-top:24px;">🍽️ Unde Mâncați</div>
+    <p style="color:var(--muted);font-size:13px;margin-bottom:18px;">Selecție apreciată de localnici. Evitați La Rambla — prețuri duble, calitate slabă.</p>
+    <div class="grid2">
+      <div class="gcard"><div class="gcard-icon">🥩</div><div class="gcard-title">Bar del Pla</div><div class="gcard-sub">Tapas catalane · El Born</div><div class="gcard-desc">Tapas tradiționale: croquetas de jamón, patatas bravas cu aioli, bombas. Unul din cele mai bune baruri de tapas. Atmosferă animată, mese mici.</div><div class="gcard-price">~15–20€/pers</div></div>
+      <div class="gcard"><div class="gcard-icon">🍺</div><div class="gcard-title">El Xampanyet</div><div class="gcard-sub">Bar local din 1929 · El Born</div><div class="gcard-desc">Autentic 100%. Famos pentru cava proprie. Tapas simple: anchoas, formaje. Turiști puțini, localnici mulți. Atmosferă de neuitat.</div><div class="gcard-price">~10–14€/pers</div></div>
+      <div class="gcard"><div class="gcard-icon">🍕</div><div class="gcard-title">Cervecería Catalana</div><div class="gcard-sub">Pintxos & tapas · Eixample</div><div class="gcard-desc">Celebră pentru pintxos (tapas basce pe feliuțe de pâine) la tejghea. Prețuri ok, porții bune. Veniți la 13:00 sau 20:00 pentru coadă mai scurtă.</div><div class="gcard-price">~15–18€/pers</div></div>
+      <div class="gcard"><div class="gcard-icon">🐟</div><div class="gcard-title">La Cova Fumada</div><div class="gcard-sub">Fructe de mare · Barceloneta</div><div class="gcard-desc">Locul unde s-a inventat "la bomba". Fără meniu fix, fără rezervare. Ce e pe tablă azi — aia mâncați. Localnici puri. Dimineața devreme, se închide la 15:00.</div><div class="gcard-price">~12–18€/pers</div></div>
+      <div class="gcard"><div class="gcard-icon">☕</div><div class="gcard-title">Nomad Coffee Lab</div><div class="gcard-sub">Specialty coffee · Eixample</div><div class="gcard-desc">Una din cele mai bune cafenele din Barcelona. Baristi pasionați, single origin. Atmosferă industrială-chic. Perfectă pentru pauza de dupăamiază.</div><div class="gcard-price">~4–7€/pers</div></div>
+      <div class="gcard"><div class="gcard-icon">🍫</div><div class="gcard-title">Granja M. Viader</div><div class="gcard-sub">Cafenea istorică din 1870 · Raval</div><div class="gcard-desc">Locul unde s-a inventat Cacaolat (băutura cu ciocolată spaniolă). Orxata, cacaolat, ensaimada. Un pic de history cu gustul Barcelonei vechi.</div><div class="gcard-price">~6–10€/pers</div></div>
+      <div class="gcard"><div class="gcard-icon">🥗</div><div class="gcard-title">Menú del Día (oriunde!)</div><div class="gcard-sub">Prânz · Orice cartier local</div><div class="gcard-desc">3 feluri + pâine + băutură pentru 10–13€. Cea mai bună afacere gastronomică din Spania. Căutați localnici înăuntru și meniu scris de mână pe tablă.</div><div class="gcard-price">10–13€/pers 🏆</div></div>
+      <div class="gcard"><div class="gcard-icon">🌊</div><div class="gcard-title">Fideua & Paella</div><div class="gcard-sub">Specific catalán · Barceloneta sau Eixample</div><div class="gcard-desc">Fideua = alternativa catalană la paella, cu paste subțiri și fructe de mare proaspete. Escudella i Carn d'Olla = tocană catalană tradițională. La Bar del Pla sau Quimet & Quimet.</div><div class="gcard-price">~18–25€/pers</div></div>
+    </div>
+    <div class="divider"></div>
+    <div class="stitle">⚠️ Capcane de Evitat</div>
+    <div class="grid3">
+      <div class="gcard" style="border-color:rgba(224,82,82,.3)"><div class="gcard-icon">❌</div><div class="gcard-title">La Rambla</div><div class="gcard-desc">Prețuri 2–3x mai mari, calitate mediocră. Mergeți o stradă paralelă și prețurile se înjumătățesc imediat.</div></div>
+      <div class="gcard" style="border-color:rgba(224,82,82,.3)"><div class="gcard-icon">❌</div><div class="gcard-title">Poze pe meniu + ospătar activ</div><div class="gcard-desc">Dacă ospătarul te cheamă de pe stradă și meniul e cu poze în 5 limbi — capcană turistică garantată. Treceți mai departe.</div></div>
+      <div class="gcard" style="border-color:rgba(76,175,125,.3)"><div class="gcard-icon">✅</div><div class="gcard-title">Cum găsiți locuri bune</div><div class="gcard-desc">Localnici înăuntru + meniu pe tablă în spaniolă/catalană + prețuri cu zecimale (8.50€ nu 8€) = semne bune.</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== MONTSERRAT ===== -->
+<div id="sec-montserrat" class="section">
+  <div class="si" style="padding-top:24px;">
+    <div class="monthero">
+      <div style="font-size:38px;">⛰️</div>
+      <div class="monttitle">Montserrat</div>
+      <div style="color:var(--muted);font-size:13px;margin-bottom:14px;">Muntele sfânt al Cataloniei · 1236m altitudine · 22 Martie</div>
+      <div class="montstats">
+        <div class="mstat"><div class="mstatv">~13€</div><div class="mstatl">Tren R5 dus-întors</div></div>
+        <div class="mstat"><div class="mstatv">~13€</div><div class="mstatl">Funicular Sant Joan</div></div>
+        <div class="mstat"><div class="mstatv">~7h</div><div class="mstatl">Durata totală</div></div>
+        <div class="mstat"><div class="mstatv">1h</div><div class="mstatl">Tren din Barcelona</div></div>
+        <div class="mstat"><div class="mstatv">Gratuit</div><div class="mstatl">Intrare mănăstire</div></div>
+      </div>
+    </div>
+    <div class="stitle">🚂 Cum Ajungeți</div>
+    <div class="greenbox">
+      <h3>🟢 Ruta completă pas cu pas</h3>
+      <div class="step"><div class="stepn g">1</div><div class="stept">Metro până la <strong>Plaça Espanya</strong> (L1 sau L3 — inclus în T-Casual).</div></div>
+      <div class="step"><div class="stepn g">2</div><div class="stept">Tren <strong>FGC R5</strong> din Plaça Espanya — pleacă la fiecare oră (~8:36, ~9:36 etc.). Cumpărați bilete la automate sau pe <strong>fgc.cat</strong>. NU merge cu T-Casual.</div></div>
+      <div class="step"><div class="stepn g">3</div><div class="stept"><strong>Varianta A (recomandată):</strong> Coborâți la <em>Monistrol de Montserrat</em> → Rack Railway (cremaleră) 15 min → direct la mănăstire. Urcarea în zigzag prin stânci e spectaculoasă!</div></div>
+      <div class="step"><div class="stepn g">4</div><div class="stept"><strong>Varianta B:</strong> Coborâți la <em>Aeri de Montserrat</em> → Telecabină (gondolă aeriană) 5 min → mănăstire. Vederi mai bune din aer, dar mai scumpă (~12.50€ dus).</div></div>
+      <div class="step"><div class="stepn g">5</div><div class="stept"><strong>Pachet combinat recomandat:</strong> Tren + cremaleră + funicular Sant Joan ~35€ — dacă faceți totul e mai ieftin decât separat.</div></div>
+    </div>
+    <div class="stitle">🗺️ Ce Vedeți</div>
+    <div class="grid2">
+      <div class="gcard"><div class="gcard-icon">⛪</div><div class="gcard-title">Mănăstirea + Bazilica</div><div class="gcard-sub">Gratuit · 45 min</div><div class="gcard-desc">Mănăstire benedictină activă din sec. IX. La Moreneta (Fecioara Neagră) — coadă ~30 min. Bazilica romanică impresionantă.</div></div>
+      <div class="gcard"><div class="gcard-icon">🎵</div><div class="gcard-title">Corul Escolania</div><div class="gcard-sub">Gratuit · zilnic 13:00</div><div class="gcard-desc">Corul de copii al mănăstirii — unul din cele mai vechi din lume. Cântă zilnic la 13:00 în bazilică. Verificați programul pe abadiamontserrat.cat.</div></div>
+      <div class="gcard"><div class="gcard-icon">🚡</div><div class="gcard-title">Funicular Sant Joan</div><div class="gcard-sub">~13€ · Vârful 1.100m</div><div class="gcard-desc">Urcă până la 1.100m. De acolo hiking spre Sant Jeroni Peak (1.236m, 1h dus-întors) — vederi spre Pirinei și Mediterana pe vreme bună.</div></div>
+      <div class="gcard"><div class="gcard-icon">✝️</div><div class="gcard-title">Calea Crucii</div><div class="gcard-sub">Gratuit · 45 min</div><div class="gcard-desc">14 stații sculptate în stâncă. Privelişti și sculpturi remarcabile indiferent de motivație religioasă.</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== TRANSPORT ===== -->
+<div id="sec-transport" class="section">
+  <div class="si" style="padding-top:24px;">
+    <div class="stitle">🚇 Sistemul de Transport</div>
+    <div class="infogrid">
+      <div class="icard"><div class="icardv">~12€</div><div class="icardl">T-Casual (10 călătorii)</div></div>
+      <div class="icard"><div class="icardv">~1.20€</div><div class="icardl">RENFE aeroport T2 (inclus T-Casual!)</div></div>
+      <div class="icard"><div class="icardv">5.50€</div><div class="icardl">Metro L9 aeroport (bilet special)</div></div>
+      <div class="icard"><div class="icardv">0€</div><div class="icardl">Funicular Montjuïc (inclus T-Casual)</div></div>
+    </div>
+    <div class="alert"><strong>Știați?</strong> O călătorie T-Casual e valabilă 75 minute și puteți schimba mijloacele de transport! Metro → bus → funicular = o singură călătorie dacă vă încadrați în 75 min.</div>
+    <div class="grid3">
+      <div class="gcard"><div class="gcard-icon">🚇</div><div class="gcard-title">T-Casual — Biletul vostru</div><div class="gcard-desc">Câte unul fiecare (sau 2 carduri la 2 persoane). Metro, bus, funicular Montjuïc, tramvai. NU pentru aeroport L9 și NU pentru FGC spre Montserrat.</div></div>
+      <div class="gcard"><div class="gcard-icon">🚂</div><div class="gcard-title">RENFE T2 → Passeig de Gràcia</div><div class="gcard-desc">Cel mai ieftin drum de la aeroport! ~1.20€ cu T-Casual, 25 min, dacă aterizați la T2. Dacă aterizați la T1 — L9 Sud (5.50€).</div></div>
+      <div class="gcard"><div class="gcard-icon">🚶</div><div class="gcard-title">Când mergeți pe jos</div><div class="gcard-desc">Gothic → Born → Barceloneta = 10–15 min mers. Eixample e în grid perfect. Orice sub 20 min pe jos e mai rapid decât metroul.</div></div>
+      <div class="gcard"><div class="gcard-icon">🚕</div><div class="gcard-title">Bolt / Cabify</div><div class="gcard-desc">Mai ieftin decât taxiurile galbene. Util noaptea târziu sau cu bagaje. Niciodată taxi fără apometru pornit.</div></div>
+      <div class="gcard"><div class="gcard-icon">❌</div><div class="gcard-title">Barcelona Card — Skip!</div><div class="gcard-desc">45–60€/pers. Calculând ce vizitați voi, T-Casual + bilete separate iese mai ieftin. Nu merită.</div></div>
+      <div class="gcard"><div class="gcard-icon">📱</div><div class="gcard-title">App TMB</div><div class="gcard-desc">Instalați TMB App pentru hărți de metrou și orare. Google Maps offline descărcat înainte de plecare.</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== BUGET ===== -->
+<div id="sec-buget" class="section">
+  <div class="si" style="padding-top:24px;">
+    <div class="stitle">💰 Estimare Buget / Persoană</div>
+    <div style="background:var(--card);border:1px solid var(--border);border-radius:16px;overflow:hidden;margin-bottom:20px;">
+      <table class="btable">
+        <thead><tr><th>Categorie</th><th>Detalii</th><th style="text-align:right">Cost €/pers</th></tr></thead>
+        <tbody>
+          <tr><td><strong>Transport urban</strong></td><td class="sm">T-Casual 10 călătorii</td><td style="text-align:right">~12€</td></tr>
+          <tr><td><strong>Aeroport sosire</strong></td><td class="sm">RENFE ~1.20€ sau L9 ~5.50€</td><td style="text-align:right">~1–6€</td></tr>
+          <tr><td><strong>Aeroport plecare</strong></td><td class="sm">L9 Sud sau RENFE</td><td style="text-align:right">~1–6€</td></tr>
+          <tr><td><strong>Montserrat</strong></td><td class="sm">Tren R5 dus-întors + cremaleră</td><td style="text-align:right">~13€</td></tr>
+          <tr><td><strong>Funicular Sant Joan</strong></td><td class="sm">Opțional pe Montserrat</td><td style="text-align:right">~13€</td></tr>
+          <tr><td><strong>Park Güell</strong></td><td class="sm">Zona monumentală</td><td style="text-align:right">~13€</td></tr>
+          <tr><td><strong>Sagrada Família</strong></td><td class="sm">Bilet + turlă (rezervat)</td><td style="text-align:right">~26€</td></tr>
+          <tr><td><strong>Camp Nou tur</strong></td><td class="sm">Spotify Camp Nou Experience</td><td style="text-align:right">~26€</td></tr>
+          <tr><td><strong>Castelul Montjuïc</strong></td><td class="sm">Intrare standard</td><td style="text-align:right">~12€</td></tr>
+          <tr><td><strong>Mâncare 3 zile</strong></td><td class="sm">Mic dejun 6 + prânz 12 + cină 18€/zi</td><td style="text-align:right">~70–90€</td></tr>
+          <tr><td><strong>Cafele / snackuri</strong></td><td class="sm">3 zile × ~5€</td><td style="text-align:right">~15€</td></tr>
+          <tr class="tot"><td>TOTAL ESTIMAT</td><td class="sm">Fără cazare și zbor</td><td style="text-align:right">200–230€</td></tr>
+          <tr class="tot" style="border-top:none"><td>VARIANTA ECONOMICĂ</td><td class="sm">Fără intrările opționale</td><td style="text-align:right; color:var(--green)">150–170€</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="stitle">💡 Economii Rapide</div>
+    <div class="grid3">
+      <div class="gcard"><div class="gcard-icon">🚂</div><div class="gcard-title">RENFE în loc de L9</div><div class="gcard-desc">Dacă aterizați la T2, RENFE costă ~1.20€ cu T-Casual vs 5.50€ biletul special L9. Economie: ~8€/pers (dus+întors).</div></div>
+      <div class="gcard"><div class="gcard-icon">🍽️</div><div class="gcard-title">Menú del Día zilnic</div><div class="gcard-desc">3 feluri pentru 10–13€ vs 25–35€ à la carte. Pe 3 zile economisiți 40–60€/pers.</div></div>
+      <div class="gcard"><div class="gcard-icon">🛒</div><div class="gcard-title">Mercadona pentru mic dejun</div><div class="gcard-desc">2–3€ din supermarket vs 8–12€ la cafenea. Pe 3 zile: ~25€ economisiți/pers.</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== TIPS ===== -->
+<div id="sec-tips" class="section">
+  <div class="si" style="padding-top:24px;">
+    <div class="stitle">❌ 3 Greșeli Clasice</div>
+    <div class="mcard"><div class="mnum">1</div><div><div class="mtitle">Mănâncă pe La Rambla</div><div class="mdesc">Restaurante cu prețuri duble, calitate slabă, ospătari care te cheamă activ de pe stradă. Capcana #1 pentru turiști.</div><div class="mfix">✅ O stradă perpendiculară = prețuri normale și mâncare reală.</div></div></div>
+    <div class="mcard"><div class="mnum">2</div><div><div class="mtitle">Taxi de la aeroport</div><div class="mdesc">35–45€ pe cursă când există RENFE (1.20€ cu T-Casual din T2) sau L9 (5.50€). Diferența: 30–40€ per persoană aruncat.</div><div class="mfix">✅ RENFE dacă T2, L9 dacă T1. Voi știți deja!</div></div></div>
+    <div class="mcard"><div class="mnum">3</div><div><div class="mtitle">Comandă cappuccino sau latte</div><div class="mdesc">În Spania nu se bea cappuccino — primiți priviri urâte de la barman și o cafea slabă. Spaniolii beau café con leche.</div><div class="mfix">✅ Comandați "café con leche" — lapte + espresso dublu. Perfect și jumătate din preț.</div></div></div>
+
+    <div class="stitle" style="margin-top:8px;">🔍 Hidden Gems</div>
+    <div class="grid3">
+      <div class="gcard"><div class="gcard-icon">🏰</div><div class="gcard-title">Plaça de Sant Felip Neri</div><div class="gcard-desc">Piațetă ascunsă în Gothic cu urme de gloanțe din Războiul Civil pe ziduri. Puțini turiști o găsesc. Atmosferă incredibilă.</div></div>
+      <div class="gcard"><div class="gcard-icon">🏚️</div><div class="gcard-title">Palau Güell</div><div class="gcard-desc">Palatul Gaudí mai puțin cunoscut — spectaculos și fără cozi. Intrare gratuită în prima duminică a lunii. Merită din plin!</div></div>
+      <div class="gcard"><div class="gcard-icon">🌿</div><div class="gcard-title">Jardins de Laribal</div><div class="gcard-desc">Grădini în terase pe Montjuïc, cu fântâni și pergole. Complet neaglomerate și gratuite. Un secret bine păzit.</div></div>
+      <div class="gcard"><div class="gcard-icon">🔭</div><div class="gcard-title">Bunkers del Carmel</div><div class="gcard-desc">Buncăre antiaeriene WWII — azi cel mai bun viewpoint 360° din Barcelona. Gratuit. Rating 4.6⭐ din 17.000+ recenzii.</div></div>
+      <div class="gcard"><div class="gcard-icon">🎨</div><div class="gcard-title">El Born Centre Cultura</div><div class="gcard-desc">Fosta piață din 1876, acum sit arheologic interior. Ruine medievale conservate sub acoperiș de sticlă. Unic în lume.</div></div>
+      <div class="gcard"><div class="gcard-icon">🏥</div><div class="gcard-title">Recinte Modernista Sant Pau</div><div class="gcard-desc">Fostul spital construit de Domènech i Montaner — Art Nouveau spectaculos, mai puțin aglomerat decât Sagrada. ~16€, UNESCO.</div></div>
+    </div>
+
+    <div class="stitle">✅ Checklist Pre-Plecare</div>
+    <div class="checklist">
+      <div class="chitem"><span>✅</span><span>Bilete Sagrada Família rezervate (23 mart. 16:00)</span></div>
+      <div class="chitem"><span>✅</span><span>Bilete Park Güell rezervate (23 mart. 9:30)</span></div>
+      <div class="chitem"><span>⬜</span><span>Bilete Montserrat pe fgc.cat (tren R5 + cremaleră, 22 mart.)</span></div>
+      <div class="chitem"><span>⬜</span><span>Camp Nou tur rezervat pe fcbarcelona.com (23 mart. ~18:00)</span></div>
+      <div class="chitem"><span>⬜</span><span>Verificat dacă Barça joacă meci pe 23 martie</span></div>
+      <div class="chitem"><span>⬜</span><span>App TMB instalată (metro Barcelona)</span></div>
+      <div class="chitem"><span>⬜</span><span>Google Maps descărcat offline</span></div>
+      <div class="chitem"><span>⬜</span><span>Revolut / card fără comision pregătit</span></div>
+      <div class="chitem"><span>⬜</span><span>Verificat terminal zbor (T1 sau T2) pentru RENFE vs L9</span></div>
+      <div class="chitem"><span>⬜</span><span>Haine stratificate — 18–20°C ziua, 10–12°C seara + vânt pe munte</span></div>
+    </div>
+  </div>
+</div>
+
+<script>
+function showSec(name,el){
+  document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(t=>t.classList.remove('active'));
+  document.getElementById('sec-'+name).classList.add('active');
+  el.classList.add('active');
+}
+function showDay(num,el){
+  document.querySelectorAll('.day-content').forEach(d=>d.classList.remove('active'));
+  document.querySelectorAll('.day-tab').forEach(t=>t.classList.remove('active'));
+  document.getElementById('day-'+num).classList.add('active');
+  el.classList.add('active');
+}
+</script>
+</body>
+</html>
